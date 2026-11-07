@@ -816,9 +816,9 @@ resuming with its offline edits, and leaving the session going back to snapshot 
 - **Using it.** A file enables the library with the link in place of a library file's path
   (`LibraryLink::path`), so placing, styles, variables and updates work as for library files. The
   engine never opens a socket: commands ask the app's network link and wait (a few seconds at most
-  when the server can't be reached); the Assets panel asks in the background (`have` set, so an
-  unchanged library costs a few bytes) when it opens and every 30 seconds, and the answers arrive
-  like other session events. The last library fetched stays in use while the server can't be
+  when the server can't be reached); an explicit Check for updates asks in the background (`have`
+  set, so an unchanged library costs a few bytes), and the answers arrive like other session events.
+  The last library fetched stays in use while the server can't be
   reached.
 - **Usage.** Each fetch carries the asking file's name and its instances of each library component;
   the server keeps the latest report per file name (`usage.json`, rewritten only when it changes,

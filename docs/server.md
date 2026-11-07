@@ -237,16 +237,15 @@ which other files use without anyone copying the library file around.
 - **Using.** In another file, paste one of the library file's links (a **view link** is enough)
   into **Assets ▸ Libraries** (`library.add {path: <link>}`). The library is listed in the Assets
   panel like a library file: placing a component or applying a style copies it in as a read-only
-  linked copy, as for library files. While the Assets panel shows, the app asks the server for a
-  newer version at once and then every 30 seconds (a few bytes when nothing changed) and shows
-  **Library updates available**; accepting keeps instance overrides. While the server can't be
+  linked copy, as for library files. The app fetches a newer version only when you explicitly check
+  for updates, then shows **Library updates available**; accepting keeps instance overrides. While the server can't be
   reached, the last version fetched stays in use. The file keeps the link, token included:
   sharing that file shares read access to the library.
-- **Only libraries you chose are checked by themselves.** The app asks only about team libraries
+- **Team library checks are user-triggered.** The app asks only about team libraries
   you added or checked on this computer (kept as hashes of their links in the preferences). A file
   someone sent you that names another one contacts nothing when you open it: **Assets ▸ Libraries**
-  says it isn't checked yet, and **Check for updates** (`library.check`) asks its server and
-  checks it by itself from then on (#1097). Placing one of its components or applying one of its
+  says it isn't checked yet, and **Check for updates** (`library.check`) asks its server once.
+  Placing one of its components or applying one of its
   styles asks the server too, since you did that yourself.
 - **Usage.** Each time a file's app asks for the library it reports which of its components the
   file uses and how often, and then how many instances of each the file has detached and inserted

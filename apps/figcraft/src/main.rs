@@ -135,7 +135,8 @@ impl eframe::App for App {
 }
 
 fn main() -> eframe::Result {
-    // Windows: the update helper is a copy of this program started with `--finish-update`.
+    // Only finish a self-update when its helper explicitly relaunches with --finish-update.
+    // The automatic startup check is disabled below; keep this for user-initiated updates.
     #[cfg(windows)]
     if let Some(result) = craft_update::self_update::finish(&figcraft_ui_egui::UPDATE_APP, &std::env::args_os().skip(1).collect::<Vec<_>>()) {
         std::process::exit(i32::from(result.is_err()));
@@ -229,7 +230,8 @@ fn main() -> eframe::Result {
     // open (no frame then).
     figcraft_ui_egui::i18n::set(&session.prefs.language, figcraft_ui_egui::Services::system_language(&svc).as_deref());
     let mut fig = FigApp::new(session, Box::new(svc));
-    fig.set_startup_update_check(true);
+    // This fork manages its own releases; disable ArtCraft's automatic startup update check.
+    fig.set_startup_update_check(false);
     fig.automation_roots = roots;
     fig.ui.home = false;
     // Files named on the command line are the user's too: their missing fonts are listed.

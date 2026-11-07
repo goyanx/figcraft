@@ -39,10 +39,6 @@ const THUMBS_PER_FRAME: usize = 8;
 const MAX_COMPARED: usize = 20_000;
 /// Look for changed library files this often (seconds) while the panel shows.
 const LIBRARY_REFRESH: f64 = 2.0;
-/// Ask team libraries' servers for newer versions this often (seconds) while the panel shows.
-// shortcut: polled (a few bytes when nothing changed); a server push needs a connection per
-// library, worth it once libraries are used beyond the Assets panel.
-const SERVER_REFRESH: f64 = 30.0;
 /// Components listed in a team library's usage.
 const USAGE_ROWS: usize = 8;
 const PAD: f32 = 16.0;
@@ -293,16 +289,7 @@ fn refresh_libraries(app: &mut FigApp, ui: &Ui) {
             let _ = app.session.libraries.load(p);
         }
         ui.data_mut(|d| d.insert_temp(id, now));
-        // Team libraries: in the background, at once for one not fetched yet.
-        let sid = Id::unique("asset_server_libraries_checked");
-        let fetched: Option<f64> = ui.data(|d| d.get_temp(sid));
-        // Only the ones you added or checked: a file can't make the app contact a server (#1097).
-        let team: Vec<&String> = paths.iter().filter(|p| is_server_link(p) && app.session.library_allowed(p)).collect();
-        let unread = team.iter().any(|p| app.session.libraries.cached(p).is_none());
-        if !team.is_empty() && (unread || fetched.is_none_or(|l| now - l >= SERVER_REFRESH)) {
-            app.session.refresh_server_libraries();
-            ui.data_mut(|d| d.insert_temp(sid, now));
-        }
+        // Team libraries refresh only after an explicit Check for updates action.
     }
     ui.ctx().request_repaint_after(std::time::Duration::from_secs_f64(LIBRARY_REFRESH));
 }
@@ -1141,7 +1128,6 @@ fn enabled_libraries(app: &mut FigApp, ui: &mut Ui, w: f32, doc: &Document) {
             }
             Some(Ok(_)) => (tr("The file now holds another library").into(), t.danger),
             Some(Err(e)) => (e.to_string(), t.danger),
-            None if is_server_link(&l.path) && app.session.library_allowed(&l.path) => (tr("Fetching from the server…").into(), t.text_secondary),
             None if is_server_link(&l.path) => (tr("Not checked yet").into(), t.text_secondary),
             None => (tr("Not read yet").into(), t.text_secondary),
         };
@@ -1180,10 +1166,10 @@ fn enabled_libraries(app: &mut FigApp, ui: &mut Ui, w: f32, doc: &Document) {
             });
         }
     }
-    // A file names its team libraries' servers: they are contacted only once you say so (#1097).
-    let unchecked = doc.libraries.enabled.iter().any(|l| is_server_link(&l.path) && !app.session.library_allowed(&l.path));
-    if unchecked {
-        hint(ui, tr("This file uses team libraries on servers you haven't used here. They aren't contacted until you check them."));
+    // Team libraries refresh only on this explicit action (or when the user places/applies assets).
+    let has_team_libraries = doc.libraries.enabled.iter().any(|l| is_server_link(&l.path));
+    if has_team_libraries {
+        hint(ui, tr("Team libraries are checked only when you choose to check for updates or use their assets."));
         ui.horizontal(|ui| {
             ui.add_space(PAD);
             if crate::widgets::button(ui, tr("Check for updates"), false, true).clicked() && !crate::menus::dev_mode_refuses(app, CHECK) {

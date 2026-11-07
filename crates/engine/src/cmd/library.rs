@@ -88,7 +88,7 @@ pub fn specs() -> Vec<CommandSpec> {
         spec!(
             "library.check",
             "Check team libraries for updates",
-            "{library? (an enabled team library: id, name or link; all of this file's when omitted)}  asks their servers for the latest version in the background, and from then on checks them by themselves: opening a file doesn't contact the server of a team library you haven't added or checked → {checking}",
+            "{library? (an enabled team library: id, name or link; all of this file's when omitted)}  asks their servers for the latest version once in the background; checks never repeat automatically → {checking}",
             false,
             check
         ),
@@ -657,7 +657,7 @@ fn add(s: &mut Session, p: &Value) -> Result<Value> {
     Ok(out)
 }
 
-/// `library.check`: the user lets this file's team libraries (or one) be checked; they are asked now.
+/// `library.check`: ask the selected team libraries' servers once; no background polling is enabled.
 fn check(s: &mut Session, p: &Value) -> Result<Value> {
     let cmd = "library.check";
     let doc = s.doc()?;

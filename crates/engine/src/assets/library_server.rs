@@ -7,9 +7,8 @@
 //! (the Assets panel, placing components, updates with overrides kept) works as for library files.
 //! The engine never opens a socket: requests go through the app's [`LiveLink`](crate::live::LiveLink).
 //! A command that needs a library it hasn't fetched yet waits for the server (the UI runs such
-//! commands without waiting: [`crate::background`]); the Assets panel refreshes in the background
-//! ([`Session::refresh_server_libraries`]) and keeps the last library fetched while the server
-//! can't be reached.
+//! commands without waiting: [`crate::background`]); the Assets panel keeps the last library
+//! fetched while the server can't be reached. Refreshing a team library requires an explicit check.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Cursor;
@@ -187,7 +186,7 @@ impl Session {
     }
 
     /// The published library at `path`: a library file (read again when it changed), or a server
-    /// library link (fetched once; then the background refresh keeps it current).
+    /// library link (fetched when explicitly requested).
     pub fn load_library(&mut self, path: &str) -> Result<Arc<PublishedLibrary>> {
         self.fetch_library(path, false)
     }
@@ -248,8 +247,8 @@ impl Session {
         }
     }
 
-    /// Ask the servers of the active document's team libraries for newer versions, in the
-    /// background, reporting how the document uses each (the Assets panel calls it now and then).
+    /// Ask the servers of the active document's team libraries for newer versions once, in the
+    /// background, reporting how the document uses each (called by an explicit check command).
     /// Only libraries you added or checked here are asked: opening a file that names another
     /// server contacts nothing until you check it (`library.check`, #1097).
     pub fn refresh_server_libraries(&mut self) {

@@ -355,7 +355,7 @@ No alpha blockers: the alpha gate in [`roadmap.md`](roadmap.md#alpha-gate) passe
   its link), accounts and per-person library permissions, insertions, detachments and mode counts for
   styles and variables (they count layers and files using them; a component's instances,
   insertions and detachments are counted, the last two week by week),
-  update notices pushed by the server (apps ask every 30 seconds while the Assets panel shows).
+  update notices pushed by the server (the app only checks team libraries when you ask it to).
 - **Evidence:** a file's library is published to `figcraft-server` under the file and enabled in
   other files by a share link, with per-asset versions, updates with overrides kept, usage counts
   and swapping a whole library by names ([`server.md`](server.md#team-libraries),
